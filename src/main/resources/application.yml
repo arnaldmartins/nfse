@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: nfse
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nfse
+    username: nfse
+    password: nfse
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    br.com.alvexustech.nfse: INFO
+
+nfse:
+  municipio:
+    codigo-ibge: "3106200"
+    nome: "Belo Horizonte"
+    uf: "MG"
+  certificate:
+    # Em producao, prefira secret manager/volume Docker e nunca commitar o .pfx.
+    pfx-path: ${NFSE_CERTIFICATE_PFX_PATH:./certs/certificado-a1.pfx}
+    password: ${NFSE_CERTIFICATE_PASSWORD:changeit}
+    alias: ${NFSE_CERTIFICATE_ALIAS:}
+  national-api:
+    # Ajuste conforme o ambiente oficial vigente do Portal Nacional/ADN.
+    base-url: ${NFSE_NATIONAL_API_BASE_URL:https://adn.producaorestrita.nfse.gov.br/contribuintes}
+    emission-path: ${NFSE_NATIONAL_API_EMISSION_PATH:/nfse}
+    status-path-template: ${NFSE_NATIONAL_API_STATUS_PATH_TEMPLATE:/nfse/{protocolo}}
+    connect-timeout: 10s
+    response-timeout: 30s
+    max-in-memory-size: 2MB
+  emission:
+    default-provider: nacional
+    # 1=producao, 2=producao restrita/homologacao, conforme leiaute oficial vigente.
+    ambiente-codigo: "2"
+    idempotency-window: 24h

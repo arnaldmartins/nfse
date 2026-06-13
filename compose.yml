@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nfse-postgres
+    environment:
+      POSTGRES_DB: nfse
+      POSTGRES_USER: nfse
+      POSTGRES_PASSWORD: nfse
+    ports:
+      - "5432:5432"
+    volumes:
+      - nfse-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nfse -d nfse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nfse-postgres-data:

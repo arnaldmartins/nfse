@@ -1,0 +1,28 @@
+### Emitir NFS-e simples
+POST http://localhost:8080/api/v1/nfse/emissoes
+Content-Type: application/json
+X-Correlation-Id: exemplo-local-001
+
+{
+  "idempotencyKey": "pedido-123-v1",
+  "competencia": "2026-05-08",
+  "prestador": {
+    "cnpj": "12345678000195",
+    "inscricaoMunicipal": "123456789"
+  },
+  "tomador": {
+    "documento": "11122233344",
+    "nome": "Cliente Exemplo",
+    "email": "cliente@example.com"
+  },
+  "servico": {
+    "codigoServicoNacional": "010101",
+    "descricao": "Servico de desenvolvimento de software",
+    "valor": 1000.00,
+    "codigoTributacaoMunicipal": "010101"
+  }
+}
+
+### Consultar status
+GET http://localhost:8080/api/v1/nfse/emissoes/{{emissionId}}/status
+X-Correlation-Id: exemplo-local-001
