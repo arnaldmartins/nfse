@@ -27,18 +27,21 @@ public class NfseEmissionService {
     private final NfseEmissionRepository repository;
     private final DpsXmlBuilder dpsXmlBuilder;
     private final XmlSignatureService xmlSignatureService;
+    private final NfseXmlValidator nfseXmlValidator;
     private final NfseProviderRegistry providerRegistry;
     private final NfseEmissionProperties emissionProperties;
     private final NfseMunicipioProperties municipioProperties;
     private final TransactionTemplate transactionTemplate;
 
     public NfseEmissionService(NfseEmissionRepository repository, DpsXmlBuilder dpsXmlBuilder,
-                               XmlSignatureService xmlSignatureService, NfseProviderRegistry providerRegistry,
+                               XmlSignatureService xmlSignatureService, NfseXmlValidator nfseXmlValidator,
+                               NfseProviderRegistry providerRegistry,
                                NfseEmissionProperties emissionProperties, NfseMunicipioProperties municipioProperties,
                                TransactionTemplate transactionTemplate) {
         this.repository = repository;
         this.dpsXmlBuilder = dpsXmlBuilder;
         this.xmlSignatureService = xmlSignatureService;
+        this.nfseXmlValidator = nfseXmlValidator;
         this.providerRegistry = providerRegistry;
         this.emissionProperties = emissionProperties;
         this.municipioProperties = municipioProperties;
@@ -98,13 +101,16 @@ public class NfseEmissionService {
                 municipioProperties.codigoIbge(),
                 EmissionStatus.RECEIVED,
                 request.prestador().cnpj(),
-                request.tomador().documento(),
+                request.tomador().cpf(),
                 request.servico().valor()
         );
 
         DpsXmlBuilder.DpsXml dpsXml = dpsXmlBuilder.build(request);
+        nfseXmlValidator.validateDps(dpsXml.xml());
         entity.setDpsXml(dpsXml.xml());
-        entity.setSignedXml(xmlSignatureService.sign(dpsXml.xml(), dpsXml.id()));
+        String signedXml = xmlSignatureService.sign(dpsXml.xml(), dpsXml.id());
+        nfseXmlValidator.validateDps(signedXml);
+        entity.setSignedXml(signedXml);
         entity.setStatus(EmissionStatus.SIGNED);
 
         NfseEmissionEntity saved = repository.save(entity);

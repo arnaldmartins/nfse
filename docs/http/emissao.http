@@ -11,7 +11,7 @@ X-Correlation-Id: exemplo-local-001
     "inscricaoMunicipal": "123456789"
   },
   "tomador": {
-    "documento": "11122233344",
+    "cpf": "11905650647",
     "nome": "Cliente Exemplo",
     "email": "cliente@example.com"
   },
@@ -19,7 +19,7 @@ X-Correlation-Id: exemplo-local-001
     "codigoServicoNacional": "010101",
     "descricao": "Servico de desenvolvimento de software",
     "valor": 1000.00,
-    "codigoTributacaoMunicipal": "010101"
+    "codigoTributacaoMunicipal": "101"
   }
 }
 

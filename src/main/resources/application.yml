@@ -54,3 +54,14 @@ nfse:
     # 1=producao, 2=producao restrita/homologacao, conforme leiaute oficial vigente.
     ambiente-codigo: "2"
     idempotency-window: 24h
+    schema-path: xsd/nfse-v1.01/DPS_v1.01.xsd
+    leiaute-versao: "1.01"
+    versao-aplicativo: "alvexus-nfse-1.0"
+    serie-dps: "10000"
+    # Ajuste estes codigos conforme o cadastro/regime real do prestador.
+    optante-simples-nacional: "3"
+    regime-ap-tributacao-simples-nacional: "1"
+    regime-especial-tributario: "0"
+    tributacao-issqn: "1"
+    tipo-retencao-issqn: "1"
+    indicador-total-tributos: "15.50"

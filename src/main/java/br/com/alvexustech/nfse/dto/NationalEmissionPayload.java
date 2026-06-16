@@ -1,6 +1,9 @@
 package br.com.alvexustech.nfse.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record NationalEmissionPayload(
-        String xmlDpsBase64Gzip
+        @JsonProperty("dpsXmlGZipB64")
+        String dpsXmlGZipB64
 ) {
 }
