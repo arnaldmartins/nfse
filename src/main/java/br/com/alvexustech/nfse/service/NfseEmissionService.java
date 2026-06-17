@@ -77,8 +77,8 @@ public class NfseEmissionService {
                         .consultStatus(entity.getProviderProtocol())
                         .flatMap(response -> Mono.fromCallable(() -> {
                             return transactionTemplate.execute(status -> {
-                                entity.setResponsePayload(response.rawPayload());
-                                entity.setStatus(mapStatus(response.status()));
+                                entity.setResponsePayload(response.mensagem());
+                                entity.setStatus(mapStatus(response));
                                 repository.save(entity);
                                 return new ConsultarStatusResponse(entity.getStatus(), entity.getProviderProtocol(),
                                         entity.getAccessKey(), response.mensagem());
@@ -121,8 +121,14 @@ public class NfseEmissionService {
     private EmitirNfseResponse updateFromProvider(UUID id, br.com.alvexustech.nfse.dto.NationalEmissionResponse response) {
         NfseEmissionEntity entity = repository.findById(id).orElseThrow();
         entity.setProviderProtocol(response.protocolo());
-        entity.setResponsePayload(response.rawPayload());
-        entity.setStatus(mapStatus(response.status()));
+        
+        String info = response.mensagem();
+        if ((info == null || info.isBlank()) && response.alertas() != null && !response.alertas().isEmpty()) {
+            info = response.alertas().get(0).descricao();
+        }
+        entity.setResponsePayload(info);
+        
+        entity.setStatus(mapStatus(response));
         if (entity.getStatus() == EmissionStatus.AUTHORIZED) {
             entity.markAuthorized(response.chaveAcesso());
         }
@@ -139,12 +145,17 @@ public class NfseEmissionService {
         throw new IllegalStateException("Falha na emissao de NFS-e", ex);
     }
 
-    private EmissionStatus mapStatus(String providerStatus) {
+    private EmissionStatus mapStatus(br.com.alvexustech.nfse.dto.NationalEmissionResponse response) {
+        if (response.chaveAcesso() != null && !response.chaveAcesso().isBlank()) {
+            return EmissionStatus.AUTHORIZED;
+        }
+        
+        String providerStatus = response.status();
         if (providerStatus == null) {
             return EmissionStatus.PROCESSING;
         }
         return switch (providerStatus.toUpperCase()) {
-            case "AUTORIZADA", "AUTHORIZED" -> EmissionStatus.AUTHORIZED;
+            case "AUTORIZADA", "AUTHORIZED", "100" -> EmissionStatus.AUTHORIZED;
             case "REJEITADA", "REJECTED" -> EmissionStatus.REJECTED;
             case "CANCELADA", "CANCELLED" -> EmissionStatus.CANCELLED;
             case "PROCESSANDO", "PROCESSING" -> EmissionStatus.PROCESSING;

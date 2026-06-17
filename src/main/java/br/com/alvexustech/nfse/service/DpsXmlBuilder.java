@@ -50,7 +50,7 @@ public class DpsXmlBuilder {
             var infDps = append(document, dps, "infDPS", null);
             infDps.setAttribute("Id", id);
             append(document, infDps, "tpAmb", emissionProperties.ambienteCodigo());
-            append(document, infDps, "dhEmi", OffsetDateTime.now(ZoneId.of("America/Sao_Paulo")).format(DPS_DATE_TIME));
+            append(document, infDps, "dhEmi", OffsetDateTime.now(ZoneId.of("America/Sao_Paulo")).minusMinutes(2).format(DPS_DATE_TIME));
             append(document, infDps, "verAplic", emissionProperties.versaoAplicativo());
             append(document, infDps, "serie", serie);
             append(document, infDps, "nDPS", numeroDps);
@@ -78,7 +78,7 @@ public class DpsXmlBuilder {
 
         var regTrib = append(document, prest, "regTrib", null);
         append(document, regTrib, "opSimpNac", emissionProperties.optanteSimplesNacional());
-        append(document, regTrib, "regApTribSN", emissionProperties.regimeApTributacaoSimplesNacional());
+        appendIfNotBlank(document, regTrib, "regApTribSN", emissionProperties.regimeApTributacaoSimplesNacional());
         append(document, regTrib, "regEspTrib", emissionProperties.regimeEspecialTributario());
     }
 
@@ -171,11 +171,11 @@ public class DpsXmlBuilder {
         throw new IllegalArgumentException("codigoServicoNacional deve conter 6 digitos, ou item/subitem com 4 digitos");
     }
 
-    private String buildDpsId(EmitirNfseRequest request, String serie, String numeroDps) {
+    private String buildDpsId(EmitirNfseRequest request, String serieId, String numeroDps) {
         String documento = onlyDigits(request.prestador().cnpj());
         String tipoInscricao = documento.length() == 11 ? "1" : "2";
-        String inscricao = documento.length() == 11 ? leftPadDigits(documento, 14) : documento;
-        return "DPS" + municipioProperties.codigoIbge() + tipoInscricao + inscricao + serie + leftPadDigits(numeroDps, 15);
+        String inscricao = leftPadDigits(documento, 14);
+        return "DPS" + municipioProperties.codigoIbge() + tipoInscricao + inscricao + serieId + leftPadDigits(numeroDps, 15);
     }
 
     private String numeroDps(EmitirNfseRequest request) {
@@ -199,7 +199,7 @@ public class DpsXmlBuilder {
     }
 
     private String decimal(BigDecimal value) {
-        return value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+        return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
 
     private String onlyDigits(String value) {

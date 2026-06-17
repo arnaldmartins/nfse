@@ -28,6 +28,7 @@ class DpsXmlBuilderTest {
             null,
             null,
             null,
+            null,
             null
     );
     private final NfseMunicipioProperties municipioProperties = new NfseMunicipioProperties("3106200", "Belo Horizonte", "MG");
@@ -50,7 +51,7 @@ class DpsXmlBuilderTest {
         assertThat(dpsXml.id()).matches("DPS\\d{42}");
         assertThat(dpsXml.xml()).contains("<cTribNac>010100</cTribNac>");
         assertThat(dpsXml.xml()).contains("<cTribMun>101</cTribMun>");
-        assertThat(dpsXml.xml()).contains("<vServ>1000</vServ>");
+        assertThat(dpsXml.xml()).contains("<vServ>1000.00</vServ>");
         assertThat(dpsXml.xml()).contains("<CPF>11905650647</CPF>");
     }
 }

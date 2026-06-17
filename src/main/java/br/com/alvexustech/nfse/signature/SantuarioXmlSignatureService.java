@@ -13,9 +13,7 @@ import org.apache.xml.security.utils.ElementProxy;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -55,23 +53,19 @@ public class SantuarioXmlSignatureService implements XmlSignatureService {
                     document,
                     "",
                     XMLSignature.ALGO_ID_SIGNATURE_RSA_SHA256,
-                    Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS
+                    Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS
             );
-            Element signatureElement = signature.getElement();
-            prepareSignatureWithoutPrefixes(signatureElement);
-            root.appendChild(signatureElement);
+            root.appendChild(signature.getElement());
 
             Transforms transforms = new Transforms(document);
             transforms.addTransform(Transforms.TRANSFORM_ENVELOPED_SIGNATURE);
-            transforms.addTransform(Transforms.TRANSFORM_C14N_EXCL_OMIT_COMMENTS);
+            transforms.addTransform(Transforms.TRANSFORM_C14N_OMIT_COMMENTS);
 
             String uri = referenceId == null || referenceId.isBlank() ? "" : "#" + referenceId;
             signature.addDocument(uri, transforms, MessageDigestAlgorithm.ALGO_ID_DIGEST_SHA256);
             signature.addKeyInfo(certificateMaterial.certificate());
             signature.sign(certificateMaterial.privateKey());
 
-            normalizeSignatureText(document);
-            removeWhitespaceTextNodes(root);
             return serialize(document);
         } catch (Exception ex) {
             throw new XmlSignatureException("Falha ao assinar XML DPS/NFS-e", ex);
@@ -105,62 +99,6 @@ public class SantuarioXmlSignatureService implements XmlSignatureService {
         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
         return factory.newDocumentBuilder()
                 .parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-    }
-
-    private void prepareSignatureWithoutPrefixes(Element signatureElement) {
-        signatureElement.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", Constants.SignatureSpecNS);
-
-        NodeList nodes = signatureElement.getElementsByTagNameNS("*", "*");
-        for (int index = 0; index < nodes.getLength(); index++) {
-            Element element = (Element) nodes.item(index);
-            removePrefixedNamespaceAttributes(element);
-            if (element.getPrefix() != null && !element.getPrefix().isBlank()) {
-                element.getOwnerDocument().renameNode(element, element.getNamespaceURI(), element.getLocalName());
-            }
-        }
-
-        removePrefixedNamespaceAttributes(signatureElement);
-        if (signatureElement.getPrefix() != null && !signatureElement.getPrefix().isBlank()) {
-            signatureElement.getOwnerDocument().renameNode(
-                    signatureElement, signatureElement.getNamespaceURI(), signatureElement.getLocalName());
-        }
-    }
-
-    private void removePrefixedNamespaceAttributes(Element element) {
-        for (int index = element.getAttributes().getLength() - 1; index >= 0; index--) {
-            String attributeName = element.getAttributes().item(index).getNodeName();
-            if (attributeName.startsWith("xmlns:")) {
-                element.removeAttribute(attributeName);
-            }
-        }
-    }
-
-    private void normalizeSignatureText(Document document) {
-        stripElementWhitespace(document, Constants.SignatureSpecNS, "SignatureValue");
-        stripElementWhitespace(document, Constants.SignatureSpecNS, "X509Certificate");
-    }
-
-    private void stripElementWhitespace(Document document, String namespace, String localName) {
-        NodeList nodes = document.getElementsByTagNameNS(namespace, localName);
-        for (int index = 0; index < nodes.getLength(); index++) {
-            Element element = (Element) nodes.item(index);
-            String text = element.getTextContent();
-            if (text != null && !text.isEmpty()) {
-                element.setTextContent(text.replaceAll("\\s+", ""));
-            }
-        }
-    }
-
-    private void removeWhitespaceTextNodes(Element element) {
-        NodeList children = element.getChildNodes();
-        for (int index = children.getLength() - 1; index >= 0; index--) {
-            Node child = children.item(index);
-            if (child instanceof Text text && text.getData().strip().isEmpty()) {
-                element.removeChild(child);
-            } else if (child instanceof Element childElement) {
-                removeWhitespaceTextNodes(childElement);
-            }
-        }
     }
 
     private String serialize(Document document) throws Exception {
