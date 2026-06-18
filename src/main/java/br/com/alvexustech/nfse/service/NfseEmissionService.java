@@ -18,6 +18,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class NfseEmissionService {
@@ -69,21 +71,29 @@ public class NfseEmissionService {
                         .orElseThrow(() -> new IllegalArgumentException("Emissao nao encontrada: " + emissionId)))
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(entity -> {
-                    if (entity.getProviderProtocol() == null || entity.getProviderProtocol().isBlank()) {
-                        return Mono.just(new ConsultarStatusResponse(entity.getStatus(), entity.getProviderProtocol(),
-                                entity.getAccessKey(), "Emissao ainda sem protocolo do provider"));
+                    if (entity.getAccessKey() == null || entity.getAccessKey().isBlank()) {
+                        return providerRegistry.get(entity.getProvider())
+                            .consultDps(entity.getIdempotencyKey())
+                            .flatMap(response -> Mono.fromCallable(() -> {
+                                return transactionTemplate.execute(status -> {
+                                    updateFromProvider(entity.getId(), response);
+                                    return new ConsultarStatusResponse(entity.getStatus(), entity.getProviderProtocol(),
+                                            entity.getAccessKey(), response.mensagem());
+                                });
+                            }).subscribeOn(Schedulers.boundedElastic()));
+                    }else{
+                        return providerRegistry.get(entity.getProvider())
+                            .consultStatus(entity.getAccessKey())
+                            .flatMap(response -> Mono.fromCallable(() -> {
+                                return transactionTemplate.execute(status -> {
+                                    entity.setResponsePayload(response.mensagem());
+                                    entity.setStatus(mapStatus(response));
+                                    repository.save(entity);
+                                    return new ConsultarStatusResponse(entity.getStatus(), entity.getProviderProtocol(),
+                                            entity.getAccessKey(), response.mensagem());
+                                });
+                            }).subscribeOn(Schedulers.boundedElastic()));
                     }
-                    return providerRegistry.get(entity.getProvider())
-                        .consultStatus(entity.getProviderProtocol())
-                        .flatMap(response -> Mono.fromCallable(() -> {
-                            return transactionTemplate.execute(status -> {
-                                entity.setResponsePayload(response.mensagem());
-                                entity.setStatus(mapStatus(response));
-                                repository.save(entity);
-                                return new ConsultarStatusResponse(entity.getStatus(), entity.getProviderProtocol(),
-                                        entity.getAccessKey(), response.mensagem());
-                            });
-                        }).subscribeOn(Schedulers.boundedElastic()));
                 });
     }
 
@@ -120,15 +130,18 @@ public class NfseEmissionService {
 
     private EmitirNfseResponse updateFromProvider(UUID id, br.com.alvexustech.nfse.dto.NationalEmissionResponse response) {
         NfseEmissionEntity entity = repository.findById(id).orElseThrow();
-        entity.setProviderProtocol(response.protocolo());
         
-        String info = response.mensagem();
-        if ((info == null || info.isBlank()) && response.alertas() != null && !response.alertas().isEmpty()) {
-            info = response.alertas().get(0).descricao();
+        if (response.erro() != null) {
+            entity.setStatus(EmissionStatus.FAILED);
+            entity.setError(response.erro().codigo(), response.erro().descricao());
+        }else{
+            entity.setStatus(mapStatus(response));
         }
-        entity.setResponsePayload(info);
         
-        entity.setStatus(mapStatus(response));
+        if (response.alertas() != null && !response.alertas().isEmpty()) {
+            //entity.setResponsePayload(response.alertas().stream().map(a->a.descricao() + "; ").collect(Collectors.toList()));
+        }        
+        
         if (entity.getStatus() == EmissionStatus.AUTHORIZED) {
             entity.markAuthorized(response.chaveAcesso());
         }

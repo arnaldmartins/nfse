@@ -13,6 +13,7 @@ public record NationalApiProperties(
         @NotBlank String baseUrl,
         @NotBlank String emissionPath,
         @NotBlank String statusPathTemplate,
+        @NotBlank String dpsPathTemplate,
         Duration connectTimeout,
         Duration responseTimeout,
         DataSize maxInMemorySize

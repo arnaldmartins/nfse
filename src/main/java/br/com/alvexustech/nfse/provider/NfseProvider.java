@@ -11,4 +11,6 @@ public interface NfseProvider {
     Mono<NationalEmissionResponse> emit(EmitirNfseRequest request, String signedXml);
 
     Mono<NationalEmissionResponse> consultStatus(String protocolo);
+
+    Mono<NationalEmissionResponse> consultDps(String idDps);
 }

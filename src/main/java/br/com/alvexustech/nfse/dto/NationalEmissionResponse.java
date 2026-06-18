@@ -13,7 +13,7 @@ public record NationalEmissionResponse(
         @JsonProperty("chaveAcesso") String chaveAcesso,
         @JsonProperty("nfseXmlGZipB64") String nfseXmlGZipB64,
         @JsonProperty("alertas") List<Alerta> alertas,
-        
+        @JsonProperty("erro") Alerta erro,
         // Campos adicionais que podem vir em consultas ou outras chamadas
         @JsonProperty("protocolo") String protocolo,
         @JsonProperty("status") String status,

@@ -32,4 +32,10 @@ public class NacionalNfseProvider implements NfseProvider {
     public Mono<NationalEmissionResponse> consultStatus(String protocolo) {
         return client.status(protocolo);
     }
+    
+    @Override
+    public Mono<NationalEmissionResponse> consultDps(String idDps) {
+        return client.dps(idDps);
+    }
+
 }

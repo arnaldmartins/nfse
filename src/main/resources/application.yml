@@ -44,8 +44,9 @@ nfse:
   national-api:
     # Ajuste conforme o ambiente oficial vigente do Portal Nacional/ADN.
     base-url: ${NFSE_NATIONAL_API_BASE_URL:https://adn.producaorestrita.nfse.gov.br/contribuintes}
-    emission-path: ${NFSE_NATIONAL_API_EMISSION_PATH:/nfse}
-    status-path-template: ${NFSE_NATIONAL_API_STATUS_PATH_TEMPLATE:/nfse/{protocolo}}
+    emission-path: "/nfse"
+    status-path-template: "/nfse/{chaveAcesso}"
+    dps-path-template: "/dps/{idDps}"
     connect-timeout: 10s
     response-timeout: 30s
     max-in-memory-size: 2MB

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -46,5 +47,22 @@ public class NacionalNfseClient {
                         .defaultIfEmpty("")
                         .map(body -> new NfseProviderException("Erro na consulta NFS-e Nacional: " + body)))
                 .bodyToMono(NationalEmissionResponse.class);
+    }
+
+    public Mono<NationalEmissionResponse> dps(String idDps) {
+        return webClient.get()
+                .uri(properties.dpsPathTemplate(), Map.of("idDps", idDps))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchangeToMono(response -> {
+                    if (response.statusCode().is2xxSuccessful()
+                            || response.statusCode().equals(HttpStatusCode.valueOf(404))) {
+                        return response.bodyToMono(NationalEmissionResponse.class);                    }
+  
+                    return response.bodyToMono(String.class)
+                            .defaultIfEmpty("")
+                            .flatMap(body -> Mono.error(new NfseProviderException(
+                                    "Erro na consulta DPS NFS-e Nacional: " + body
+                            )));
+                });
     }
 }
