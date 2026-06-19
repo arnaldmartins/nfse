@@ -29,8 +29,8 @@ public class NacionalNfseProvider implements NfseProvider {
     }
 
     @Override
-    public Mono<NationalEmissionResponse> consultStatus(String protocolo) {
-        return client.status(protocolo);
+    public Mono<NationalEmissionResponse> consultStatus(String chaveAcesso) {
+        return client.status(chaveAcesso);
     }
     
     @Override

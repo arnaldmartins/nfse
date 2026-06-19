@@ -10,7 +10,7 @@ public interface NfseProvider {
 
     Mono<NationalEmissionResponse> emit(EmitirNfseRequest request, String signedXml);
 
-    Mono<NationalEmissionResponse> consultStatus(String protocolo);
+    Mono<NationalEmissionResponse> consultStatus(String chaveAcesso);
 
     Mono<NationalEmissionResponse> consultDps(String idDps);
 }

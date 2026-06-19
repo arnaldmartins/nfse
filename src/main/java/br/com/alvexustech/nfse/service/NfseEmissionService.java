@@ -18,8 +18,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.UUID;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @Service
 public class NfseEmissionService {
@@ -86,9 +84,7 @@ public class NfseEmissionService {
                             .consultStatus(entity.getAccessKey())
                             .flatMap(response -> Mono.fromCallable(() -> {
                                 return transactionTemplate.execute(status -> {
-                                    entity.setResponsePayload(response.mensagem());
-                                    entity.setStatus(mapStatus(response));
-                                    repository.save(entity);
+                                    updateFromProvider(entity.getId(), response);
                                     return new ConsultarStatusResponse(entity.getStatus(), entity.getProviderProtocol(),
                                             entity.getAccessKey(), response.mensagem());
                                 });
@@ -144,6 +140,8 @@ public class NfseEmissionService {
         
         if (entity.getStatus() == EmissionStatus.AUTHORIZED) {
             entity.markAuthorized(response.chaveAcesso());
+            if(response.nfseXmlGZipB64() != null)
+                entity.setResponsePayload(response.nfseXmlGZipB64());
         }
         repository.save(entity);
         return toResponse(entity);

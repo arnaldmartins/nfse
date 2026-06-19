@@ -38,9 +38,9 @@ public class NacionalNfseClient {
                 .bodyToMono(NationalEmissionResponse.class);
     }
 
-    public Mono<NationalEmissionResponse> status(String protocolo) {
+    public Mono<NationalEmissionResponse> status(String chaveAcesso) {
         return webClient.get()
-                .uri(properties.statusPathTemplate(), Map.of("protocolo", protocolo))
+                .uri(properties.statusPathTemplate(), Map.of("chaveAcesso", chaveAcesso))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, response -> response.bodyToMono(String.class)
