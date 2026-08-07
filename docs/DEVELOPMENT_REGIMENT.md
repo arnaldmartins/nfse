@@ -46,14 +46,15 @@ touches them.
    persistence, or errors must have a test or executable example describing the
    rule.
 
-4. Keep the knowledge base current.
-   Update `docs/PROJECT_KNOWLEDGE_BASE.md` when runtime behavior,
+4. Separate learning refactors from feature changes when possible.
+   Small refactors that directly enable a feature are welcome. Broad package
+   reshapes should be independent and covered by characterization tests first.
+
+5. Keep the knowledge base current.
+   Update `README.md` and `docs/PROJECT_KNOWLEDGE_BASE.md` when runtime behavior,
    configuration, provider integration, database schema, or fiscal assumptions
    change.
 
-5. Separate learning refactors from feature changes when possible.
-   Small refactors that directly enable a feature are welcome. Broad package
-   reshapes should be independent and covered by characterization tests first.
 
 ## Feature Workflow
 
@@ -297,7 +298,7 @@ Before finishing a change, verify:
 - Idempotency behavior is preserved.
 - New database changes use a new Flyway migration.
 - Secrets and certificate material are not committed.
-- `docs/PROJECT_KNOWLEDGE_BASE.md` is updated when behavior changes.
+- `README.md` and `docs/PROJECT_KNOWLEDGE_BASE.md` is updated when behavior changes.
 - The implementation is no more generic than the current requirement needs.
 
 ## Guidance For AI Agents
