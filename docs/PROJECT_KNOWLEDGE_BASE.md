@@ -5,6 +5,9 @@ repository. Keep it updated when the project changes architecture, fiscal
 behavior, provider integrations, database schema, configuration, or operational
 flow.
 
+For development practice, testing discipline, and gradual architecture
+evolution, use `docs/DEVELOPMENT_REGIMENT.md` together with this knowledge base.
+
 ## What This Project Does
 
 This project is a Java 17 / Spring Boot 3 backend for automated Brazilian

@@ -13,6 +13,9 @@ Base inicial em Java 17 e Spring Boot 3 para emissao automatizada de NFS-e pelo 
 - `persistence` e `repository`: modelo JPA e acesso PostgreSQL.
 - `exception` e `logging`: erros padronizados e correlacao de logs.
 
+Para evoluir o MVP com SOLID, DRY, KISS, YAGNI, TDD/BDD e arquitetura
+hexagonal de forma gradual, consulte `docs/DEVELOPMENT_REGIMENT.md`.
+
 ## Fluxo recomendado do MVP
 
 1. Receber request interno com `idempotencyKey`.
