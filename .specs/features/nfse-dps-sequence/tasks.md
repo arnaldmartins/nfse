@@ -134,15 +134,15 @@ T5 -> T6 -> T7
 
 **Done when**:
 
-- [ ] `allocateNext` normalizes issuer CNPJ to exactly 14 digits.
-- [ ] `allocateNext` parses configured DPS series as a numeric value up to 5 digits.
-- [ ] Missing sequence row starts at zero and returns number one.
-- [ ] Existing row with `N` returns `N + 1` and persists `N + 1`.
-- [ ] Upper bound at 15 digits fails before overflow.
-- [ ] Race on first row creation is handled by retrying row acquisition or surfacing a controlled failure covered by tests.
-- [ ] Unit/integration tests cover all outcomes above.
-- [ ] Gate check passes: `mvn test`.
-- [ ] Test count is reported with no silent deletions.
+- [x] `allocateNext` normalizes issuer CNPJ to exactly 14 digits.
+- [x] `allocateNext` parses configured DPS series as a numeric value up to 5 digits.
+- [x] Missing sequence row starts at zero and returns number one.
+- [x] Existing row with `N` returns `N + 1` and persists `N + 1`.
+- [x] Upper bound at 15 digits fails before overflow.
+- [x] Race on first row creation is handled by retrying row acquisition or surfacing a controlled failure covered by tests.
+- [x] Unit/integration tests cover all outcomes above.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions.
 
 **Tests**: unit + integration
 **Gate**: full
