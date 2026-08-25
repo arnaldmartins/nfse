@@ -77,11 +77,11 @@ T5 -> T6 -> T7
 
 **Done when**:
 
-- [ ] Migration creates `nfse_dps_sequence` with requested columns and PostgreSQL numeric equivalents.
-- [ ] Migration enforces unique `(issuer_cnpj, dps_serial)`.
-- [ ] Migration adds `dps_serial` and `dps_number` audit columns to `nfse_emission`.
-- [ ] Gate check passes: `mvn test`.
-- [ ] Test count is reported with no silent deletions.
+- [x] Migration creates `nfse_dps_sequence` with requested columns and PostgreSQL numeric equivalents.
+- [x] Migration enforces unique `(issuer_cnpj, dps_serial)`.
+- [x] Migration adds `dps_serial` and `dps_number` audit columns to `nfse_emission`.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions.
 
 **Tests**: integration
 **Gate**: build
@@ -105,12 +105,12 @@ T5 -> T6 -> T7
 
 **Done when**:
 
-- [ ] Entity maps `id`, `issuerCnpj`, `dpsSerial`, and `lastDpsIssued` with correct nullability and precision.
-- [ ] Entity maintains `createdAt` and `updatedAt` consistently with existing entity style.
-- [ ] Repository exposes normal and pessimistic-write lookup by `(issuer_cnpj, dps_serial)`.
-- [ ] Repository integration test verifies unique key and locked lookup query compile/run.
-- [ ] Gate check passes: `mvn test`.
-- [ ] Test count is reported with no silent deletions.
+- [x] Entity maps `id`, `issuerCnpj`, `dpsSerial`, and `lastDpsIssued` with correct nullability and precision.
+- [x] Entity maintains `createdAt` and `updatedAt` consistently with existing entity style.
+- [x] Repository exposes normal and pessimistic-write lookup by `(issuer_cnpj, dps_serial)`.
+- [x] Repository integration test verifies unique key and locked lookup query compile/run.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions.
 
 **Tests**: integration
 **Gate**: full
