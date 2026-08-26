@@ -25,6 +25,7 @@ public class NfseEmissionService {
     private static final Logger log = LoggerFactory.getLogger(NfseEmissionService.class);
 
     private final NfseEmissionRepository repository;
+    private final NfseDpsSequenceService dpsSequenceService;
     private final DpsXmlBuilder dpsXmlBuilder;
     private final XmlSignatureService xmlSignatureService;
     private final NfseXmlValidator nfseXmlValidator;
@@ -33,12 +34,14 @@ public class NfseEmissionService {
     private final NfseMunicipioProperties municipioProperties;
     private final TransactionTemplate transactionTemplate;
 
-    public NfseEmissionService(NfseEmissionRepository repository, DpsXmlBuilder dpsXmlBuilder,
+    public NfseEmissionService(NfseEmissionRepository repository, NfseDpsSequenceService dpsSequenceService,
+                               DpsXmlBuilder dpsXmlBuilder,
                                XmlSignatureService xmlSignatureService, NfseXmlValidator nfseXmlValidator,
                                NfseProviderRegistry providerRegistry,
                                NfseEmissionProperties emissionProperties, NfseMunicipioProperties municipioProperties,
                                TransactionTemplate transactionTemplate) {
         this.repository = repository;
+        this.dpsSequenceService = dpsSequenceService;
         this.dpsXmlBuilder = dpsXmlBuilder;
         this.xmlSignatureService = xmlSignatureService;
         this.nfseXmlValidator = nfseXmlValidator;
@@ -106,17 +109,20 @@ public class NfseEmissionService {
                 emissionProperties.defaultProvider(),
                 municipioProperties.codigoIbge(),
                 EmissionStatus.RECEIVED,
-                request.prestador().cnpj(),
+                onlyDigits(request.prestador().cnpj()),
                 request.tomador().cpf(),
                 request.servico().valor()
         );
 
-        DpsXmlBuilder.DpsXml dpsXml = dpsXmlBuilder.build(request);
+        NfseDpsSequenceService.AllocatedDps allocatedDps =
+                dpsSequenceService.allocateNext(request.prestador().cnpj(), emissionProperties.serieDps());
+        DpsXmlBuilder.DpsXml dpsXml = dpsXmlBuilder.build(request, allocatedDps.serial(), allocatedDps.number());
         nfseXmlValidator.validateDps(dpsXml.xml());
         entity.setDpsXml(dpsXml.xml());
         String signedXml = xmlSignatureService.sign(dpsXml.xml(), dpsXml.id());
         nfseXmlValidator.validateDps(signedXml);
         entity.setSignedXml(signedXml);
+        entity.setDpsNumber(allocatedDps.serial(), allocatedDps.number());
         entity.setStatus(EmissionStatus.SIGNED);
 
         NfseEmissionEntity saved = repository.save(entity);
@@ -176,6 +182,10 @@ public class NfseEmissionService {
 
     private EmitirNfseResponse toResponse(NfseEmissionEntity entity) {
         return new EmitirNfseResponse(entity.getId(), entity.getStatus(), entity.getProviderProtocol(), entity.getAccessKey());
+    }
+
+    private String onlyDigits(String value) {
+        return value == null ? "" : value.replaceAll("\\D", "");
     }
 
     private record EmissionPreparation(NfseEmissionEntity entity, boolean newEmission) {

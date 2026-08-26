@@ -224,13 +224,13 @@ T5 -> T6 -> T7
 
 **Done when**:
 
-- [ ] Existing `idempotencyKey` hit returns before sequence allocation.
-- [ ] New request allocates exactly one DPS number inside the preparation transaction.
-- [ ] Prepared emission stores signed XML plus `dpsSerial` and `dpsNumber`.
-- [ ] Local preparation failures roll back the sequence increment.
-- [ ] Service tests cover new request, idempotent hit, and preparation failure rollback.
-- [ ] Gate check passes: `mvn test`.
-- [ ] Test count is reported with no silent deletions.
+- [x] Existing `idempotencyKey` hit returns before sequence allocation.
+- [x] New request allocates exactly one DPS number inside the preparation transaction.
+- [x] Prepared emission stores signed XML plus `dpsSerial` and `dpsNumber`.
+- [x] Local preparation failures roll back the sequence increment.
+- [x] Service tests cover new request, idempotent hit, and preparation failure rollback.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions.
 
 **Tests**: unit + integration
 **Gate**: full
