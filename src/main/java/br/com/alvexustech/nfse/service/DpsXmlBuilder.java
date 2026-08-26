@@ -33,10 +33,18 @@ public class DpsXmlBuilder {
     }
 
     public DpsXml build(EmitirNfseRequest request) {
+        String serie = stripLeadingZeros(onlyDigits(emissionProperties.serieDps()));
+        return build(request, Integer.parseInt(serie), Long.parseLong(numeroDps(request)));
+    }
+
+    public DpsXml build(EmitirNfseRequest request, int dpsSerial, long dpsNumber) {
         try {
-            String serie = stripLeadingZeros(onlyDigits(emissionProperties.serieDps()));
-            String serieId = leftPadDigits(serie, 5);
-            String numeroDps = numeroDps(request);
+            if (dpsNumber < 0) {
+                throw new IllegalArgumentException("Numero DPS deve ser positivo");
+            }
+            String serie = Integer.toString(dpsSerial);
+            String serieId = leftPadNumber(dpsSerial, 5);
+            String numeroDps = Long.toString(dpsNumber);
             String id = buildDpsId(request, serieId, numeroDps);
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -208,6 +216,17 @@ public class DpsXmlBuilder {
 
     private String leftPadDigits(String value, int size) {
         String digits = stripLeadingZeros(onlyDigits(value));
+        if (digits.length() > size) {
+            throw new IllegalArgumentException("Valor numerico excede " + size + " digitos");
+        }
+        return "0".repeat(size - digits.length()) + digits;
+    }
+
+    private String leftPadNumber(long value, int size) {
+        if (value < 0) {
+            throw new IllegalArgumentException("Valor numerico deve ser positivo");
+        }
+        String digits = Long.toString(value);
         if (digits.length() > size) {
             throw new IllegalArgumentException("Valor numerico excede " + size + " digitos");
         }

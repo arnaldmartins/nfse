@@ -166,13 +166,13 @@ T5 -> T6 -> T7
 
 **Done when**:
 
-- [ ] Builder API accepts allocated serial and number.
-- [ ] `<serie>` uses the numeric serial without leading zeros.
-- [ ] `<nDPS>` uses the allocated number.
-- [ ] DPS `Id` contains the allocated number left-padded to 15 digits.
-- [ ] Unit tests verify XML contents and schema validity.
-- [ ] Gate check passes: `mvn test`.
-- [ ] Test count is reported with no silent deletions.
+- [x] Builder API accepts allocated serial and number.
+- [x] `<serie>` uses the numeric serial without leading zeros.
+- [x] `<nDPS>` uses the allocated number.
+- [x] DPS `Id` contains the allocated number left-padded to 15 digits.
+- [x] Unit tests verify XML contents and schema validity.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions.
 
 **Tests**: unit
 **Gate**: quick

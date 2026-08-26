@@ -54,4 +54,22 @@ class DpsXmlBuilderTest {
         assertThat(dpsXml.xml()).contains("<vServ>1000.00</vServ>");
         assertThat(dpsXml.xml()).contains("<CPF>11905650647</CPF>");
     }
+
+    @Test
+    void buildsDpsXmlWithAllocatedSerialAndNumber() {
+        EmitirNfseRequest request = new EmitirNfseRequest(
+                "pedido-sem-numero-fiscal",
+                LocalDate.of(2025, 6, 16),
+                new PrestadorDto("66375620000113", ""),
+                new TomadorDto("11905650647", "Arnald Alves Martins", "arnaldalvesmartins@gmail.com"),
+                new ServicoDto("01.01", "Desenvolvimento de software", new BigDecimal("1000.00"), "0101")
+        );
+
+        DpsXmlBuilder.DpsXml dpsXml = builder.build(request, 7, 42L);
+
+        validator.validateDps(dpsXml.xml());
+        assertThat(dpsXml.xml()).contains("<serie>7</serie>");
+        assertThat(dpsXml.xml()).contains("<nDPS>42</nDPS>");
+        assertThat(dpsXml.id()).endsWith("00007000000000000042");
+    }
 }
