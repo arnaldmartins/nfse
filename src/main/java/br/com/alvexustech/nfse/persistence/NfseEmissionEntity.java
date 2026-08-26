@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -43,6 +45,12 @@ public class NfseEmissionEntity {
     private String dpsXml;
     @Column(columnDefinition = "TEXT")
     private String signedXml;
+    @JdbcTypeCode(SqlTypes.NUMERIC)
+    @Column(precision = 5, scale = 0)
+    private Integer dpsSerial;
+    @JdbcTypeCode(SqlTypes.NUMERIC)
+    @Column(precision = 15, scale = 0)
+    private Long dpsNumber;
     @Column(columnDefinition = "TEXT")
     private String responsePayload;
     @Column(length = 80)
@@ -95,6 +103,8 @@ public class NfseEmissionEntity {
     public BigDecimal getServiceAmount() { return serviceAmount; }
     public String getDpsXml() { return dpsXml; }
     public String getSignedXml() { return signedXml; }
+    public Integer getDpsSerial() { return dpsSerial; }
+    public Long getDpsNumber() { return dpsNumber; }
     public String getResponsePayload() { return responsePayload; }
     public String getErrorCode() { return errorCode; }
     public String getErrorMessage() { return errorMessage; }
@@ -104,6 +114,10 @@ public class NfseEmissionEntity {
 
     public void setDpsXml(String dpsXml) { this.dpsXml = dpsXml; }
     public void setSignedXml(String signedXml) { this.signedXml = signedXml; }
+    public void setDpsNumber(Integer dpsSerial, Long dpsNumber) {
+        this.dpsSerial = dpsSerial;
+        this.dpsNumber = dpsNumber;
+    }
     public void setResponsePayload(String responsePayload) { this.responsePayload = responsePayload; }
     public void setProviderProtocol(String providerProtocol) { this.providerProtocol = providerProtocol; }
     public void setAccessKey(String accessKey) { this.accessKey = accessKey; }

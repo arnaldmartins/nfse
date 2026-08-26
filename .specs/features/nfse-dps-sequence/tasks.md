@@ -196,11 +196,11 @@ T5 -> T6 -> T7
 
 **Done when**:
 
-- [ ] Entity maps audit columns with numeric precision matching Flyway.
-- [ ] New emissions can store allocated serial and number.
-- [ ] Existing idempotent emissions can be read with nullable audit fields for pre-feature rows.
-- [ ] Gate check passes: `mvn test`.
-- [ ] Test count is reported with no silent deletions.
+- [x] Entity maps audit columns with numeric precision matching Flyway.
+- [x] New emissions can store allocated serial and number.
+- [x] Existing idempotent emissions can be read with nullable audit fields for pre-feature rows.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions.
 
 **Tests**: build + integration
 **Gate**: build
