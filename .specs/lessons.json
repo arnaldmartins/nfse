@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 2,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::concurrent first row creation must retry locked acquisition after a unique key collision and be covered with an empty key parallel integration test",
+      "text": "Concurrent first-row creation must retry locked acquisition after a unique-key collision and be covered with an empty-key parallel integration test.",
+      "signal": "ac_gap",
+      "scope": "persistence",
+      "status": "candidate",
+      "features": [
+        "nfse-dps-sequence"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "DPSSEQ-04; NfseDpsSequenceService.java:41-46 (persistence)"
+      ],
+      "created": "2026-09-23T22:27:46Z",
+      "last_seen": "2026-09-23T22:27:46Z"
+    }
+  ]
+}
