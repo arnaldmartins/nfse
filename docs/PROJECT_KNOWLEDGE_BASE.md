@@ -12,6 +12,17 @@ evolution, use `docs/DEVELOPMENT_REGIMENT.md` together with this knowledge base.
 
 ## Update Summaries
 
+### 2026-09-23 - Persistent DPS fiscal sequence
+
+NFS-e emissions now use `nfse_dps_sequence` as the persistent counter for each
+`(issuer_cnpj, dps_serial)` pair. After an idempotency lookup misses,
+`NfseEmissionService` allocates the next number under a pessimistic database
+lock, builds and saves the signed DPS with that serial and number, and commits
+the counter in the same preparation transaction. An idempotency hit returns the
+stored emission before allocation, so retries do not consume another number.
+The related design and acceptance criteria are in
+`.specs/features/nfse-dps-sequence/spec.md`.
+
 ### 2026-08-07 - Documentation baseline and update history
 
 The project documentation was reorganized so the README now provides the main

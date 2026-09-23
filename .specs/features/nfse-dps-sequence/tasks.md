@@ -254,11 +254,11 @@ T5 -> T6 -> T7
 
 **Done when**:
 
-- [ ] Concurrent same issuer/series allocations produce distinct numbers.
-- [ ] Different issuer or serial allocations maintain independent counters.
-- [ ] Documentation describes the sequence table, allocation flow, and idempotency interaction.
-- [ ] Gate check passes: `mvn test`.
-- [ ] Test count is reported with no silent deletions.
+- [x] Concurrent same issuer/series allocations produce distinct numbers.
+- [x] Different issuer or serial allocations maintain independent counters.
+- [x] Documentation describes the sequence table, allocation flow, and idempotency interaction.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions (17 total; +2 for T7).
 
 **Tests**: integration
 **Gate**: full
