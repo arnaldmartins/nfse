@@ -19,4 +19,22 @@ public interface NfseDpsSequenceRepository extends JpaRepository<NfseDpsSequence
     Optional<NfseDpsSequenceEntity> findByIssuerCnpjAndDpsSerialForUpdate(
             @Param("issuerCnpj") String issuerCnpj,
             @Param("dpsSerial") Integer dpsSerial);
+
+    @Query(value = """
+            insert into nfse_dps_sequence (
+                id, issuer_cnpj, dps_serial, last_dps_issued, created_at, updated_at
+            ) values (
+                :id, :issuerCnpj, :dpsSerial, 1, current_timestamp, current_timestamp
+            )
+            on conflict (issuer_cnpj, dps_serial) do update
+            set last_dps_issued = nfse_dps_sequence.last_dps_issued + 1,
+                updated_at = current_timestamp
+            where nfse_dps_sequence.last_dps_issued < :maxDpsNumber
+            returning last_dps_issued
+            """, nativeQuery = true)
+    Optional<Long> allocateNext(
+            @Param("id") UUID id,
+            @Param("issuerCnpj") String issuerCnpj,
+            @Param("dpsSerial") Integer dpsSerial,
+            @Param("maxDpsNumber") Long maxDpsNumber);
 }

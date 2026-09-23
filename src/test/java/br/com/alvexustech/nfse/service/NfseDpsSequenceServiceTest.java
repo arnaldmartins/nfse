@@ -6,12 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,15 +24,13 @@ class NfseDpsSequenceServiceTest {
     private NfseDpsSequenceService service;
 
     @Test
-    void surfacesControlledFailureWhenFirstRowCreationRaces() {
-        when(repository.findByIssuerCnpjAndDpsSerialForUpdate("66375620000113", 1))
-                .thenReturn(Optional.empty());
-        when(repository.saveAndFlush(any()))
-                .thenThrow(new DataIntegrityViolationException("duplicate issuer serial"));
+    void returnsTheNumberAllocatedByTheAtomicSequenceOperation() {
+        when(repository.allocateNext(any(), eq("66375620000113"), eq(1), anyLong()))
+                .thenReturn(Optional.of(1L));
 
-        assertThatThrownBy(() -> service.allocateNext("66375620000113", "1"))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Concorrencia ao criar sequencia DPS; tente novamente")
-                .hasCauseInstanceOf(DataIntegrityViolationException.class);
+        NfseDpsSequenceService.AllocatedDps allocated = service.allocateNext("66375620000113", "1");
+
+        assertThat(allocated.serial()).isEqualTo(1);
+        assertThat(allocated.number()).isEqualTo(1L);
     }
 }

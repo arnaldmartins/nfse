@@ -267,6 +267,29 @@ T5 -> T6 -> T7
 
 ---
 
+### T8: Recover Concurrent First-Row Allocation
+
+**What**: Make concurrent allocation for a previously unseen issuer/series key atomically create or increment one sequence row.
+**Where**: `src/main/java/br/com/alvexustech/nfse/repository/NfseDpsSequenceRepository.java`, `src/main/java/br/com/alvexustech/nfse/service/NfseDpsSequenceService.java`, `src/test/java/br/com/alvexustech/nfse/service/NfseDpsSequenceServiceTest.java`, `src/test/java/br/com/alvexustech/nfse/service/NfseDpsSequenceServiceIntegrationTest.java`
+**Depends on**: T7
+**Reuses**: PostgreSQL unique `(issuer_cnpj, dps_serial)` constraint and existing allocation integration fixture
+**Requirement**: DPSSEQ-04
+
+**Done when**:
+
+- [x] Two concurrent first allocations for the same issuer/series both complete with distinct, consecutive numbers.
+- [x] Only one sequence row exists and stores the second allocated number.
+- [x] Allocation remains inside the caller transaction so local emission preparation failures roll back its increment.
+- [x] Gate check passes: `mvn test`.
+- [x] Test count is reported with no silent deletions (18 total; +1 for T8).
+
+**Tests**: unit + integration
+**Gate**: full
+
+**Commit**: `fix(sequence): recover first-row allocation race`
+
+---
+
 ## Phase Execution Map
 
 ```
@@ -274,7 +297,7 @@ Phase 1 -> Phase 2 -> Phase 3
 
 Phase 1:  T1 -> T2
 Phase 2:  T3 -> T4
-Phase 3:  T5 -> T6 -> T7
+Phase 3:  T5 -> T6 -> T7 -> T8
 ```
 
 ---
@@ -290,6 +313,7 @@ Phase 3:  T5 -> T6 -> T7
 | T5 | T4 | T4 -> T5 | OK |
 | T6 | T5 | T5 -> T6 | OK |
 | T7 | T6 | T6 -> T7 | OK |
+| T8 | T7 | T7 -> T8 | OK |
 
 ## Test Co-location Validation
 
@@ -302,6 +326,7 @@ Phase 3:  T5 -> T6 -> T7
 | T5 | Emission entity | build + integration | build + integration | OK |
 | T6 | Emission service | unit + integration | unit + integration | OK |
 | T7 | Sequence service / docs | integration | integration | OK |
+| T8 | Sequence service / repository | unit + integration | unit + integration | OK |
 
 ## Tools Question Before Execute
 

@@ -3,6 +3,7 @@ package br.com.alvexustech.nfse.service;
 import br.com.alvexustech.nfse.PostgresIntegrationTest;
 import br.com.alvexustech.nfse.persistence.NfseDpsSequenceEntity;
 import br.com.alvexustech.nfse.repository.NfseDpsSequenceRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -32,6 +33,8 @@ class NfseDpsSequenceServiceIntegrationTest extends PostgresIntegrationTest {
     private NfseDpsSequenceService service;
     @Autowired
     private NfseDpsSequenceRepository repository;
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     void createsFirstSequenceRowWithNormalizedIssuerCnpjAndNumberOne() {
@@ -51,6 +54,7 @@ class NfseDpsSequenceServiceIntegrationTest extends PostgresIntegrationTest {
 
         NfseDpsSequenceService.AllocatedDps allocated = service.allocateNext("66375620000113", "2");
 
+        entityManager.clear();
         NfseDpsSequenceEntity sequence = repository.findByIssuerCnpjAndDpsSerial("66375620000113", 2)
                 .orElseThrow();
         assertThat(allocated.serial()).isEqualTo(2);
@@ -100,6 +104,29 @@ class NfseDpsSequenceServiceIntegrationTest extends PostgresIntegrationTest {
             assertThat(allocations.stream().map(this::getAllocation).map(NfseDpsSequenceService.AllocatedDps::number))
                     .containsExactlyInAnyOrder(1L, 2L);
             assertThat(repository.findByIssuerCnpjAndDpsSerial("66375620000113", 4).orElseThrow().getLastDpsIssued())
+                    .isEqualTo(2L);
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void allocatesDistinctConsecutiveNumbersWhenConcurrentRequestsCreateTheFirstRow() throws Exception {
+        CountDownLatch ready = new CountDownLatch(2);
+        CountDownLatch start = new CountDownLatch(1);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            List<Future<NfseDpsSequenceService.AllocatedDps>> allocations = List.of(
+                    executor.submit(allocateWhenStarted(ready, start, "66375620000113", "7")),
+                    executor.submit(allocateWhenStarted(ready, start, "66375620000113", "7")));
+
+            assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+            start.countDown();
+
+            assertThat(allocations.stream().map(this::getAllocation).map(NfseDpsSequenceService.AllocatedDps::number))
+                    .containsExactlyInAnyOrder(1L, 2L);
+            assertThat(repository.findByIssuerCnpjAndDpsSerial("66375620000113", 7).orElseThrow().getLastDpsIssued())
                     .isEqualTo(2L);
         } finally {
             executor.shutdownNow();
