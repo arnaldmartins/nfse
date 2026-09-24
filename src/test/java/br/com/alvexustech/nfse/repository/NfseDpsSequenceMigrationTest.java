@@ -44,6 +44,18 @@ class NfseDpsSequenceMigrationTest {
 
             assertThat(numericColumn(statement, "nfse_emission", "dps_serial")).containsExactly("numeric", "YES", 5, 0);
             assertThat(numericColumn(statement, "nfse_emission", "dps_number")).containsExactly("numeric", "YES", 15, 0);
+            assertThat(column(statement, "nfse_emission", "dps_id")).containsExactly("character varying", "YES", 50);
+            assertThat(indexExists(statement, "nfse_emission", "idx_nfse_emission_dps_id")).isTrue();
+        }
+    }
+
+    private boolean indexExists(Statement statement, String table, String indexName) throws Exception {
+        try (ResultSet resultSet = statement.executeQuery("""
+                SELECT 1
+                FROM pg_indexes
+                WHERE tablename = '%s' AND indexname = '%s'
+                """.formatted(table, indexName))) {
+            return resultSet.next();
         }
     }
 
