@@ -71,5 +71,19 @@ class DpsXmlBuilderTest {
         assertThat(dpsXml.xml()).contains("<serie>7</serie>");
         assertThat(dpsXml.xml()).contains("<nDPS>42</nDPS>");
         assertThat(dpsXml.id()).endsWith("00007000000000000042");
+        assertThat(dpsXml.idWithoutPrefix()).matches("\\d{42}");
+        assertThat(dpsXml.idWithoutPrefix()).isEqualTo(dpsXml.id().substring(3));
+    }
+
+    @Test
+    void extractsIdWithoutPrefixSafely() {
+        DpsXmlBuilder.DpsXml standardDps = new DpsXmlBuilder.DpsXml("DPS310620026637562000011300007000000000000042", "<DPS/>");
+        assertThat(standardDps.idWithoutPrefix()).isEqualTo("310620026637562000011300007000000000000042");
+
+        DpsXmlBuilder.DpsXml nonPrefixedDps = new DpsXmlBuilder.DpsXml("CUSTOM12345", "<DPS/>");
+        assertThat(nonPrefixedDps.idWithoutPrefix()).isEqualTo("CUSTOM12345");
+
+        DpsXmlBuilder.DpsXml nullDps = new DpsXmlBuilder.DpsXml(null, "<DPS/>");
+        assertThat(nullDps.idWithoutPrefix()).isNull();
     }
 }

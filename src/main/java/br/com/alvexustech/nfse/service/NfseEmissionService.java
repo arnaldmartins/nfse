@@ -123,6 +123,7 @@ public class NfseEmissionService {
         nfseXmlValidator.validateDps(signedXml);
         entity.setSignedXml(signedXml);
         entity.setDpsNumber(allocatedDps.serial(), allocatedDps.number());
+        entity.setDpsId(dpsXml.idWithoutPrefix());
         entity.setStatus(EmissionStatus.SIGNED);
 
         NfseEmissionEntity saved = repository.save(entity);

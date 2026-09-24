@@ -244,5 +244,11 @@ public class DpsXmlBuilder {
     }
 
     public record DpsXml(String id, String xml) {
+        public String idWithoutPrefix() {
+            if (id != null && id.startsWith("DPS")) {
+                return id.substring(3);
+            }
+            return id;
+        }
     }
 }
