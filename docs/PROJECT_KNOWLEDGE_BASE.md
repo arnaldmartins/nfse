@@ -12,6 +12,17 @@ evolution, use `docs/DEVELOPMENT_REGIMENT.md` together with this knowledge base.
 
 ## Update Summaries
 
+### 2026-09-24 - Persist DPS ID without "DPS" prefix in emissions
+
+`nfse_emission` now stores the 42-digit national DPS identifier in column `dps_id`,
+allowing direct lookup, database auditing, and provider reconciliation without
+parsing XML payloads. During emission preparation, `NfseEmissionService` retrieves
+the generated DPS ID from `DpsXmlBuilder.DpsXml`, removes the `"DPS"` prefix via
+`idWithoutPrefix()`, and persists the unprefixed string on `NfseEmissionEntity`. An
+index `idx_nfse_emission_dps_id` is created by Flyway migration `V3`. Idempotent hits
+preserve existing records without modification. The related design and acceptance
+criteria are in `.specs/features/nfse-emission-dps-id/spec.md`.
+
 ### 2026-09-23 - Persistent DPS fiscal sequence
 
 NFS-e emissions now use `nfse_dps_sequence` as the persistent counter for each

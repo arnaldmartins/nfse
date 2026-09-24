@@ -83,8 +83,9 @@ class NfseEmissionServiceSequenceIntegrationTest extends PostgresIntegrationTest
     void allocatesOneDpsNumberInsidePreparationTransactionForNewEmission() {
         sequenceRepository.saveAndFlush(new NfseDpsSequenceEntity(UUID.randomUUID(), "66375620000113", 7, 41L));
         EmitirNfseRequest request = request("pedido-novo-sequencial");
-        when(dpsXmlBuilder.build(request, 7, 42L)).thenReturn(new DpsXmlBuilder.DpsXml("DPS42", "<DPS/>"));
-        when(xmlSignatureService.sign("<DPS/>", "DPS42")).thenReturn("<DPS>signed</DPS>");
+        when(dpsXmlBuilder.build(request, 7, 42L)).thenReturn(
+                new DpsXmlBuilder.DpsXml("DPS310620026637562000011300007000000000000042", "<DPS/>"));
+        when(xmlSignatureService.sign("<DPS/>", "DPS310620026637562000011300007000000000000042")).thenReturn("<DPS>signed</DPS>");
         when(providerRegistry.get("nacional")).thenReturn(provider);
         when(provider.emit(request, "<DPS>signed</DPS>")).thenReturn(Mono.just(authorizedResponse()));
 
@@ -96,6 +97,7 @@ class NfseEmissionServiceSequenceIntegrationTest extends PostgresIntegrationTest
         assertThat(emission.getIssuerCnpj()).isEqualTo("66375620000113");
         assertThat(emission.getDpsSerial()).isEqualTo(7);
         assertThat(emission.getDpsNumber()).isEqualTo(42L);
+        assertThat(emission.getDpsId()).isEqualTo("310620026637562000011300007000000000000042");
         assertThat(emission.getSignedXml()).isEqualTo("<DPS>signed</DPS>");
         assertThat(sequence.getLastDpsIssued()).isEqualTo(42L);
         verify(dpsXmlBuilder).build(request, 7, 42L);
@@ -105,6 +107,7 @@ class NfseEmissionServiceSequenceIntegrationTest extends PostgresIntegrationTest
     void returnsExistingEmissionWithoutAllocatingSequenceOrRebuildingXml() {
         NfseEmissionEntity existing = emission("pedido-idempotente");
         existing.setDpsNumber(7, 42L);
+        existing.setDpsId("310620026637562000011300007000000000000042");
         emissionRepository.saveAndFlush(existing);
         sequenceRepository.saveAndFlush(new NfseDpsSequenceEntity(UUID.randomUUID(), "66375620000113", 7, 42L));
 
@@ -112,6 +115,8 @@ class NfseEmissionServiceSequenceIntegrationTest extends PostgresIntegrationTest
 
         NfseDpsSequenceEntity sequence = sequenceRepository.findByIssuerCnpjAndDpsSerial("66375620000113", 7)
                 .orElseThrow();
+        NfseEmissionEntity reloaded = emissionRepository.findByIdempotencyKey("pedido-idempotente").orElseThrow();
+        assertThat(reloaded.getDpsId()).isEqualTo("310620026637562000011300007000000000000042");
         assertThat(sequence.getLastDpsIssued()).isEqualTo(42L);
         verifyNoInteractions(dpsXmlBuilder, xmlSignatureService, nfseXmlValidator, providerRegistry, provider);
     }
