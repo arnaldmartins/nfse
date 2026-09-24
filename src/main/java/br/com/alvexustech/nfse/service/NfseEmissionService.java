@@ -74,7 +74,7 @@ public class NfseEmissionService {
                 .flatMap(entity -> {
                     if (entity.getAccessKey() == null || entity.getAccessKey().isBlank()) {
                         return providerRegistry.get(entity.getProvider())
-                            .consultDps(entity.getIdempotencyKey())
+                            .consultDps(entity.getDpsId())
                             .flatMap(response -> Mono.fromCallable(() -> {
                                 return transactionTemplate.execute(status -> {
                                     updateFromProvider(entity.getId(), response);
