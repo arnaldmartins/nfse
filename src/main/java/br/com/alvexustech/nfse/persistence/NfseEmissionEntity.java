@@ -51,6 +51,8 @@ public class NfseEmissionEntity {
     @JdbcTypeCode(SqlTypes.NUMERIC)
     @Column(precision = 15, scale = 0)
     private Long dpsNumber;
+    @Column(name = "dps_id", length = 50)
+    private String dpsId;
     @Column(columnDefinition = "TEXT")
     private String responsePayload;
     @Column(length = 80)
@@ -105,6 +107,7 @@ public class NfseEmissionEntity {
     public String getSignedXml() { return signedXml; }
     public Integer getDpsSerial() { return dpsSerial; }
     public Long getDpsNumber() { return dpsNumber; }
+    public String getDpsId() { return dpsId; }
     public String getResponsePayload() { return responsePayload; }
     public String getErrorCode() { return errorCode; }
     public String getErrorMessage() { return errorMessage; }
@@ -118,6 +121,7 @@ public class NfseEmissionEntity {
         this.dpsSerial = dpsSerial;
         this.dpsNumber = dpsNumber;
     }
+    public void setDpsId(String dpsId) { this.dpsId = dpsId; }
     public void setResponsePayload(String responsePayload) { this.responsePayload = responsePayload; }
     public void setProviderProtocol(String providerProtocol) { this.providerProtocol = providerProtocol; }
     public void setAccessKey(String accessKey) { this.accessKey = accessKey; }

@@ -24,12 +24,14 @@ class NfseEmissionRepositoryTest extends PostgresIntegrationTest {
     void storesGeneratedDpsSerialAndNumberOnEmission() {
         NfseEmissionEntity emission = emission("pedido-com-dps-audit");
         emission.setDpsNumber(7, 42L);
+        emission.setDpsId("310620026637562000011300007000000000000042");
 
         NfseEmissionEntity saved = repository.saveAndFlush(emission);
 
         NfseEmissionEntity found = repository.findById(saved.getId()).orElseThrow();
         assertThat(found.getDpsSerial()).isEqualTo(7);
         assertThat(found.getDpsNumber()).isEqualTo(42L);
+        assertThat(found.getDpsId()).isEqualTo("310620026637562000011300007000000000000042");
     }
 
     @Test
@@ -39,6 +41,7 @@ class NfseEmissionRepositoryTest extends PostgresIntegrationTest {
         NfseEmissionEntity found = repository.findById(saved.getId()).orElseThrow();
         assertThat(found.getDpsSerial()).isNull();
         assertThat(found.getDpsNumber()).isNull();
+        assertThat(found.getDpsId()).isNull();
     }
 
     private NfseEmissionEntity emission(String idempotencyKey) {
